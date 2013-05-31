@@ -1,6 +1,6 @@
 module XmlActiveRecordBase
 =begin
-  There are 3 conventions in place for using this library
+  There are 4 conventions in place for using this library
 
   CONVENTIONS:
   api_attr_accessor - Array - This mode extends the standard attr_accessor
