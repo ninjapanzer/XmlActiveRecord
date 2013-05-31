@@ -6,6 +6,7 @@ Can take XML and turn it into objects with ActiveRecord Style Macros
   There are 4 conventions in place for using this library
 
   CONVENTIONS:
+  
   **api_attr_accessor** - Array - This mode extends the standard attr_accessor and keeps track of the attributes for the subclass so they are accessible for meta programming
   
   **api_has_many** - Array - This mode also extends the standard attr_accessor and keeps track of collections that are represented in nested XML collections of items modeled by an associated ruby model. Naming conventions are underscore and singular. The expectation is the XML collection will be a plural camelcase variant.
