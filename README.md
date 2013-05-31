@@ -1,3 +1,15 @@
+WHY
+===
+
+Well our client has an XML only API and I figured it would be nice to construct objects that we can interact with in opposition to building hashes from the returned media. And as a blinding opportunity to learn ruby meta programming. I took to building this for a purpose library. While I am not sure it is very modular to other projects at this moment I hope it may help others understand some of the processes for building ruby meta code. I know it helped me.
+
+History
+=======
+
+The idea here is simple enough but ruby meta programming is a bit tricky. First of all Classes have made overlapping scopes from the singleton to the instance. Identifying what scope an operation is occuring in is a bit of a challenge. On top of that learning how to include mixins is something of a struggle. Especially when you are blind hacking at it. My first iteration of this process was jammed full of bar = eval ":#{foo}" statements. After some pairing I was educated on the slowness of eval and moved on to more method based introspections like send and Object.get_const to help me on my way. Once I had successfully factored those monsters out I continued to add features which led to my exploration fo callbacks.
+
+The callback in this case if for method level caching. The response of each method is Marshalled to a Tempfile for quick retrieval later. In many cases I was caching the recursive expansion of objects from XML. This takes too much time to process when the data is coming from a remote system. Request run in normal time once cached and while there is not an external configuration for the cache it is easy to change the callbacks to refresh longer or shorter than 30 minutes. Just ask me how.
+
 XmlActiveRecord
 ===============
 
