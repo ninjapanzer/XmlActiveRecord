@@ -46,11 +46,12 @@ Although not aptly named this library mobdule for XMLActiveRecordBase adds a req
   CONVENTIONS:
   
   **api_set_cacheable** - Array - This method which must be used after a method is in scope so below the definition
-  	eg. def self.find_all
-		response = HTTParty.get("Some Path that returns XML")
-		self.new.initialize_with_xml(get_document_from_string response.body)
-	    end
-
-	    api_use_cache :find_all
+  
+    eg. def self.find_all
+	        response = HTTParty.get("Some Path that returns XML")
+		    self.new.initialize_with_xml(get_document_from_string response.body)
+        end
+      
+	  api_use_cache :find_all
 	    
 The result of the method call will be marshalled and stored in a global hash for 30 minutes - Configuration to be added later. Any subsequent requests to that call will be retrieved from cache. The use case for this cache is when creating large collections from XML of a remote system. The request and creation time is often much longer than is desirable when the data is unlikely to change. 
