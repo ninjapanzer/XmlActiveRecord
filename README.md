@@ -37,3 +37,20 @@ Can take XML and turn it into objects with ActiveRecord Style Macros
   **api_xml_attributes** - Hash - This allows for api_assume_parent to be configured. - This is already on the chopping block to be integrated into the configuration of api_assume_parent since it is required.
   
   **sanitize_xml**(xmldoc, *things) - xmldoc, Array of strings - During testing it was found that some XML contains formatting characters which are rendered as undefined xml element nodes. To remove them before processing run this inside your processing method first.
+
+XmlActiveRecordCallback
+=======================
+
+Although not aptly named this library mobdule for XMLActiveRecordBase adds a request caching layer on the method level Rails is expected. If running stand along please set Rails.root to you tmp path.
+
+  CONVENTIONS:
+  
+  **api_set_cacheable** - Array - This method which must be used after a method is in scope so below the definition
+  	eg. def self.find_all
+		response = HTTParty.get("Some Path that returns XML")
+		self.new.initialize_with_xml(get_document_from_string response.body)
+	    end
+
+	    api_use_cache :find_all
+	    
+	The result of the method call will be marshalled and stored in a global hash for 30 minutes - Configuration to be added later. Any subsequent requests to that call will be retrieved from cache. The use case for this cache is when creating large collections from XML of a remote system. The request and creation time is often much longer than is desirable when the data is unlikely to change. 
