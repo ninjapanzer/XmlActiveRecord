@@ -26,11 +26,6 @@ module XmlActiveRecordBase
 		require 'rexml/document'
 		include REXML
 
-		include ActiveModel::Validations
-		include ActiveModel::Serialization
-		include ActiveModel::Observing
-		include ActiveModel::MassAssignmentSecurity
-		include ActiveSupport::Callbacks
 		include XmlActiveRecordCallback
 
 	  def initialize *hash
