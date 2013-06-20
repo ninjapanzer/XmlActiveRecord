@@ -28,16 +28,59 @@ module XmlActiveRecordCallback
 	  	end
 		end
 
+	class CacheObject
+		attr_accessor :key, :expiration, :life, :obj
+
+		def initialize key, expiration, life = 30, obj
+			@key = key
+			@expiration = expiration
+			@obj = obj
+			@life = life
+		end
+
+		def expired?
+			@expiration > ((Time.now + life.minutes).to_i)
+		end
+	end
+
+	class CacheList
+		attr_accessor :cached
+
+		def initialize
+			@cached ||= {}
+		end
+
+		def expire_old
+			@cached.each_pair do |key, cache|
+				if cache.expired?
+					yield(cache)
+					@cached.delete(key)
+				end
+			end
+		end
+
+		def add key, obj
+			@cached[key] = CacheObject.new key, Time.now.to_i, obj
+		end
+
+		def get key
+			unless @cached[key].blank?
+				return @cached[key]
+			else
+				return nil
+			end
+		end
+	end
+
 		def self.included(base)
   		class << base
 
   			def self.setup_cache_index
-					FileUtils.rm_r "#{Rails.root}/tmp/cache/api_requests"
+					FileUtils.rm_r "#{Rails.root}/tmp/cache/api_requests" unless Dir["#{Rails.root}/tmp/cache/api_requests"].empty?
 					FileUtils.mkdir "#{Rails.root}/tmp/cache/api_requests"
 				end
 
 		  	def api_set_cacheable(*names)
-			  	self.group_inits
 					@cacheable ||= []
 					@cacheable.concat names
 				end
@@ -50,7 +93,7 @@ module XmlActiveRecordCallback
 				setup_cache_index #do some first time run setup
 
 				def set_cache object, meth, argstr
-					$cache ||= {}
+					$cache ||= CacheList.new
 					file = Tempfile.open "#{self}_#{meth}_CacheFile_", "#{Rails.root}/tmp/cache/api_requests" do |os|
 						Marshal.dump object, os
 					end
@@ -58,26 +101,21 @@ module XmlActiveRecordCallback
 						index.write file.path
 						index.write "\n"
 					end
-					$cache["#{self}##{meth}##{argstr}"] = [Time.now.to_i, file]
+					$cache.add "#{self}##{meth}##{argstr}", file
+					#$cache["#{self}##{meth}##{argstr}"] = [Time.now.to_i, file]
 				end
 
 				def get_cache meth, argstr #method name and argument string
-					$cache ||= {}
-					cache_name = "#{self}##{meth}##{argstr}"
-					cache_node = $cache[cache_name]
-					unless cache_node.blank?
-						if (cache_node.first > (Time.now + 30.minutes).to_i)
-							cache_node.last.unlink
-							$cache.delete cache_name
-							return nil
-						else
-							if File.exists? cache_node.last.path
-								return Marshal.load(File.read(cache_node.last))
-							else
-								$cache.delete cache_name
-							end
-							return nil
-						end
+					$cache ||= CacheList.new
+					$cache.expire_old do |cache|
+						cache.obj.unlink
+					end
+					cache_node = $cache.get "#{self}##{meth}##{argstr}"
+
+					if cache_node.blank?
+						return cache_node
+					else
+						return Marshal.load(File.read(cache_node.obj))
 					end
 				end
 
@@ -90,7 +128,7 @@ module XmlActiveRecordCallback
 				  singleton_class.send 'define_method', "#{meth}_with_cache" do |*args|
 				  	Rails.logger.debug 'checking cache'
 				  	cache_node = get_cache meth, args.join
-				  	return cache_node unless cache_node.blank?
+				  	return cache_node unless cache_node.nil?
 				  	Rails.logger.debug 'going to call former method'
 				    live_node = self.send "#{meth}_without_cache", *args
 				    set_cache live_node, meth, args.join
