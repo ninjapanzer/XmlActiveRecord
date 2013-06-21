@@ -77,7 +77,7 @@ module XmlActiveRecordCallback
 
   			def self.setup_cache_index
 					FileUtils.rm_r "#{Rails.root}/tmp/cache/api_requests" unless Dir["#{Rails.root}/tmp/cache/api_requests"].empty?
-					FileUtils.mkdir "#{Rails.root}/tmp/cache/api_requests"
+					FileUtils.mkdir_p "#{Rails.root}/tmp/cache/api_requests"
 				end
 
 		  	def api_set_cacheable(*names)
