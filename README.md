@@ -67,3 +67,7 @@ Although not aptly named this library mobdule for XMLActiveRecordBase adds a req
 	  api_use_cache :find_all
 	    
 The result of the method call will be marshalled and stored in a global hash for 30 minutes - Configuration to be added later. Any subsequent requests to that call will be retrieved from cache. The use case for this cache is when creating large collections from XML of a remote system. The request and creation time is often much longer than is desirable when the data is unlikely to change. 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/ninjapanzer/xmlactiverecord/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
